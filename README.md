@@ -2,20 +2,20 @@
 
 ## Git uitleg
 
-** initialisatie **
+**initialisatie **
 
 1. git init
 
 2. git remote add origin https://github.com/mPlagge/project-2-maze-driver.git
 
-** bestanden in de repo bewerken. **
+**bestanden in de repo bewerken. **
 
 1. git pull origin master
 
-1.2 ls //om te kijken of de bestanden er in staan
+--* ls //om te kijken of de bestanden er in staan
 
 2. Bestanden bewerken
-2.2 Als je nieuwe bestanden toevoegd gebruik *git add <filename>* 
+--* Als je nieuwe bestanden toevoegd gebruik *git add <filename>* 
 
 3. git commit -m "<message>" //Zet in message wat je hebt toegevoegd en waarvoor
 
