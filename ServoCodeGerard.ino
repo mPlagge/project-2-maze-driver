@@ -1,13 +1,14 @@
+
 // library voor servo's
 #include <Servo.h>
-
-// Servo pin's
-#define servoPinLeft 12
-#define servoPinRight 14
 
 // Create objects for the weels
 Servo ServoLeft;
 Servo ServoRight;
+
+// Servo pin's
+#define servoPinLeft 12
+#define servoPinRight 14
 
 /*************************************************************************/
 
