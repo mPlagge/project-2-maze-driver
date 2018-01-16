@@ -1,0 +1,45 @@
+Als mijn ontwerp gekozen wordt dan zullen we met de hele groep kijken wie welke onderdelen heeft 
+en we kunnen gebruiken voor het bouwen en welke onderdelen 
+we nog moeten kopen.
+Het 
+onderdelen verzamelen is dus een groepsonderdeel. De verzamelde onderdelen 
+zal 
+Paul de Hek
+mee 
+naar huis nemen
+om het in de vakantie in elkaar te zetten
+Paul Wondel
+, Gerard en Aron 
+zullen 
+zo snel mogelijk
+een begin maken aan de code, voornamelijk de 
+sensor data aflezen en in de goede datatype zetten en de motors laten draaien
+, hi
+ervoor is ook een 
+deel voor de vakantie van ingepland
+.  Na de vakantie komen we bij elkaar de hardware met de code 
+te implementeren en zorgen dat de wagen werkt. Diezelfde week gaan 
+Boas en Mohammed 
+naar de 
+workshop testen, zij zullen een testplan opstelle
+n 
+die we daarna gaan uitvoeren om het voertuig te 
+testen wat er is gebouwd. Na dit testplan te hebben uitgevoerd is het week 8 en hebben we die 
+vrijdag de hele wagen werkend. In het weekend er
+na kunnen we
+zorgen dat het hele eindproduct is 
+gedocumenteerd 
+zodat we alles dinsdag op tijd kunnen inleveren.
+De documentatie zal verzorgd 
+worden door Floor en Merijn.
+Een probleem wat zich kan voordoen is dat er we niet goed kunnen testen met wat we hebben 
+aangezien we in de week na de vakantie
+(week 7)
+pas de work
+shop 
+hebben over testen. Als zich er 
+een groot probleem voor doet dan moeten we heel kortdag alles nog proberen te repareren
+.
+Ook zal er onderling goed gecommuniceerd moeten worden om te zorgen dat de code klopt 
+aangezien er 3 mensen aan werken en om te zo
+rgen dat alles goed gedocumenteerd is.
