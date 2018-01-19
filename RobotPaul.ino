@@ -1,3 +1,7 @@
+//Set debug mode/Serial.print on or off
+bool debugMode = false;
+int timeToTurn90Degrees = 6000;
+bool lineDetected = false;
 // library voor servo's
 #include <Servo.h>
 
@@ -6,63 +10,121 @@ Servo ServoLeft;
 Servo ServoRight;
 
 // Servo pin's
-#define IRPin D2
-#define servoPinLeft D1
+#define IRPinRight D0
+#define IRPinFront D1
+#define servoPinLeft D2
 #define servoPinRight D3
 #define redPin D4
 #define greenPin D5
 #define bluePin D6
-#define LDRPin D1
-
-bool frontIR;
-bool rightIR;
+#define LDRPin D7
+#define trigPin D8
+#define echoPin D9
 
 /*************************************************************************/
 
 void setup() {
   // Serial stuff
-  //Serial.begin(9600);
-  digitalWrite(greenPin, HIGH);
-  digitalWrite(redPin, HIGH);
-  digitalWrite(bluePin, HIGH);
+  if (debugMode) {
+    Serial.begin(9600);
+  }
+
+  //Set all the pin modes
+  pinMode(IRPinRight, INPUT);
+  pinMode(IRPinRight, INPUT);
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+  pinMode(LDRPin, INPUT);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
   // Bind servo objects to pins
   ServoRight.attach(servoPinRight);
   ServoLeft.attach(servoPinLeft);
 
-  //find the first line
-  if (!frontIR && !rightIR) {
-    findRightLine();
+  //Turn the LED's off
+  digitalWrite(greenPin, HIGH);
+  digitalWrite(redPin, HIGH);
+  digitalWrite(bluePin, HIGH);
+
+  wheelsTurnRight(0);
+  int startTime = millis();
+  while (millis() < (startTime + timeToTurn90Degrees)){
+    if(!infraRoodFront()){
+      lineDetected = true;
+      break;
+    }
+  }
+  if (lineDetected){
+    turnLeft();
+  } else {
+    wheelsDown(0);
+    while(infraRoodFront()){
+      //rechtdoorrijden tot er een lijn is gevonden
+    }
+    turnLeft();
   }
 }
 /*************************************************************************/
 
 
 void loop() {
- /* if (!frontIR && !rightIR) {
-    turnRight();
-  }
-  if (frontIR  && rightIR) {
+
+  if (!infraRoodFront() && !infraRoodRight()) {
     turnLeft();
   }
-*/
-  //wheels(1000);
-  wheelsTurnRight(1000);
+  if (infraRoodFront()) {
+    turnLeft();
+  }
+  if (checkFrontColour() == 'r') {
+    commenceDancing();
+  }
+
+  if (ultrasoon(10)) {
+    avoidObstacle();
+  }
+
+  wheelsDown(100);
 
 }
 
 /*************************************************************************/
+void avoidObstacle() {
+  wheelsStop(0);
+  int startTimer = millis();
+  while (millis() < (startTimer + 5000)) {
+    if (!ultrasoon(10)) {
+      if (!ultrasoon(10)) {
+        return;
+      }
+    }
+  }
+  wheelsTurnLeft(6000);//draai 180 graden
+  wheelsDown(0);
+  while (millis() < (startTimer + 5000)) {
+    if (ultrasoon(10)) {
+      avoidObstacle();
+    }
+  }
+  wheelsTurnLeft(6000);
+}
+
 
 void turnLeft() {
-  bool frontIR = infraRoodFront();
-  bool rightIR = infraRoodRight();
-  while (frontIR && rightIR) {
-    wheelsTurnLeft(1);
+  while (infraRoodFront()) {
+    wheelsTurnLeft(0);
   }
   wheelsDown(0);
 }
 
-void turnRight(){
-  
+void turnRight() {
+  while (!infraRoodFront()) {
+    wheelsTurnRight(0);
+  }
+  while (infraRoodFront()) {
+    wheelsTurnLeft(0);
+  }
+  wheelsDown(0);
 }
 
 // void's with a timer you can set
@@ -103,50 +165,78 @@ void wheelsTurnRight(float timelapse) {
 }
 
 bool infraRoodFront() {
-  if (digitalRead(IRPin) == HIGH) {
-    return true;
+  if (digitalRead(IRPinFront) == HIGH) {
+    return true; //grond
   } else {
-    return false;
+    return false; //lijn
   }
 }
 
 bool infraRoodRight() {
-  if (digitalRead(IRPin) == HIGH) {
-    return true;
+  if (digitalRead(IRPinRight) == HIGH) {
+    return true; //grond
   } else {
-    return false;
+    return false; //lijn
   }
 }
 
-/*void checkFrontColour() {
-  bool green;
-  bool red;
-  bool blue;
+void commenceDancing() {
+  wheelsTurnRight(1);
+  while (true) {
+    //ENDLESS LOOP
+  }
+}
+
+char checkFrontColour() {
   digitalWrite(greenPin, LOW);
   delay(10);
-  green = digitalRead(LDRPin);
+  bool green = digitalRead(LDRPin);
   digitalWrite(greenPin, HIGH);
   digitalWrite(redPin, LOW);
   delay(10);
-  red = digitalRead(LDRPin);
+  bool red = digitalRead(LDRPin);
   digitalWrite(redPin, HIGH);
   digitalWrite(bluePin, LOW);
   delay(10);
-  blue = digitalRead(LDRPin);
+  bool blue = digitalRead(LDRPin);
   digitalWrite(bluePin, HIGH);
 
   if (!green && !blue && red) {
-    return "red";
+    return 'r'; //Rood
   } else if (!green && !blue && !red) {
-    return "black";
+    return 'z'; //Zwart
   } else if (green && blue && red) {
-    return "ground";
+    return 'w'; //Wit
   } else {
-    return "Unknown";
+    return 'u'; //Unknown
   }
 }
-*/
-void findRightLine(){
-  
+
+bool ultrasoon(int detecteerAfstandInCentimeter) {
+  long duratie;
+  long cm;
+
+  // The sensor is triggered by a HIGH pulse of 10 or more microseconds.
+  // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read the signal from the sensor: a HIGH pulse whose
+  // duration is the time (in microseconds) from the sending
+  // of the ping to the reception of its echo off of an object.
+  duratie = pulseIn(echoPin, HIGH);
+
+  // convert the time into a distance by dividing the duration by the speed of sound in cm/μs (29cm/μs).
+  //Then devide by two because the soudwave has to travel the same distance twic (foward and back)
+  cm = duratie / 29 / 2;
+
+  if (cm < detecteerAfstandInCentimeter) {
+    return true; //returns true if object is closer then distance in the parameter
+  } else {
+    return false; //return false if object is further away then distance in the parameter
+  }
 }
 
