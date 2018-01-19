@@ -1,12 +1,12 @@
 /* truth table
-red     black   ultra   IR1    IR2   IR3   Ir4
-1e time false   false   false  false false false    go forward
-2e time false   false   -      -     -     -        stop
-false   false   false   false  false false false    90 right then forward
-false   1 or 2  false   1 or 2 -     -     -        turn left
-false   false   false   false  true  true  true     go forward
-false   false   true    false  true  true  true     wait if nesesary turn 90 left
-false   false   false   false  false true  true     turn right
+  red     black   ultra   IR1    IR2   IR3   Ir4
+  1e time false   false   false  false false false    go forward
+  2e time false   false   -      -     -     -        stop
+  false   false   false   false  false false false    90 right then forward
+  false   1 or 2  false   1 or 2 -     -     -        turn left
+  false   false   false   false  true  true  true     go forward
+  false   false   true    false  true  true  true     wait if nesesary turn 90 left
+  false   false   false   false  false true  true     turn right
 
 
 */
@@ -182,8 +182,91 @@ bool infraRed4() {
 }
 
 bool coulorBlack() {
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
+  // Reading the output frequency
+  int red = pulseIn(sensorOut, LOW);
+  // Printing the value on the serial monitor
+  delay(100);
+
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
+  // Reading the output frequency
+  int green = pulseIn(sensorOut, LOW);
+  // Printing the value on the serial monitor
+  delay(100);
+
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
+  // Reading the output frequency
+  int blue = pulseIn(sensorOut, LOW);
+  // Printing the value on the serial monitor
+  delay(100);
+  if (red < 20 && blue < 20 && green < 20) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 bool coulorRed() {
+  // Setting red filtered photodiodes to be read
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
+  // Reading the output frequency
+  int red = pulseIn(sensorOut, LOW);
+  // Printing the value on the serial monitor
+  delay(100);
+
+  // Setting Green filtered photodiodes to be read
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
+  // Reading the output frequency
+  int green = pulseIn(sensorOut, LOW);
+  // Printing the value on the serial monitor
+  delay(100);
+
+  // Setting Blue filtered photodiodes to be read
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
+  // Reading the output frequency
+  int blue = pulseIn(sensorOut, LOW);
+  // Printing the value on the serial monitor
+  delay(100);
+  if (red > 80 && blue < 20 && green < 20) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 bool ultrasoneSens() {
+  long duratie;
+  long cm;
+
+  // The sensor is triggered by a HIGH pulse of 10 or more microseconds.
+  // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read the signal from the sensor: a HIGH pulse whose
+  // duration is the time (in microseconds) from the sending
+  // of the ping to the reception of its echo off of an object.
+  duratie = pulseIn(echoPin, HIGH);
+
+  // convert the time into a distance by dividing the duration by the speed of sound in cm/μs (29cm/μs).
+  //Then devide by two because the soudwave has to travel the same distance twic (foward and back)
+  cm = duratie / 29 / 2;
+
+  if (cm < detecteerAfstandInCentimeter) {
+    return true; //returns true if object is closer then distance in the parameter
+  } else {
+    return false; //return false if object is further away then distance in the parameter
+  }
 }
