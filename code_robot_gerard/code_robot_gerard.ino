@@ -24,6 +24,22 @@ Servo ServoRight;
 #define waitTime 10 //time the robot waits when ultrasone is true. in s
 #define turnTime 10 //time the robot turns whitout cheking sensors. in ms
 
+#define S0 16
+#define S1 5
+#define S2 4
+#define S3 0
+#define sensorOut 2
+
+#define IRPin1 14
+#define IRPin2 12
+#define IRPin3 13
+#define IRPin4 15
+
+#define trigPin A0
+#define echoPin 10
+
+int frequency = 0;
+
 bool red;
 bool black;
 bool ultrasone;
@@ -150,7 +166,7 @@ void TurnRightStraight() {
 }
 
 bool infraRed1() {
-  if (digitalRead(IRPin) == HIGH) {
+  if (digitalRead(IRPin1) == HIGH) {
     return true;
   } else {
     return false;
@@ -158,7 +174,7 @@ bool infraRed1() {
 }
 
 bool infraRed2() {
-  if (digitalRead(IRPin) == HIGH) {
+  if (digitalRead(IRPin2) == HIGH) {
     return true;
   } else {
     return false;
@@ -166,7 +182,7 @@ bool infraRed2() {
 }
 
 bool infraRed3() {
-  if (digitalRead(IRPin) == HIGH) {
+  if (digitalRead(IRPin3) == HIGH) {
     return true;
   } else {
     return false;
@@ -174,7 +190,7 @@ bool infraRed3() {
 }
 
 bool infraRed4() {
-  if (digitalRead(IRPin) == HIGH) {
+  if (digitalRead(IRPin4) == HIGH) {
     return true;
   } else {
     return false;
