@@ -26,15 +26,21 @@ Servo ServoRight;
 #define servoPinLeft 3
 #define servoPinRight 1
 
-bool colorBlack;
-bool colorRed;
-int IRsensors[4] = { 2, 3, 4, 5 };
+bool colourBlack;
+bool colourRed;
+int IRsensors[4] = { 2, 6, 4, 5 };
 bool IRvalues[4];
 bool objectClose;
 int red;
 int blue;
 int green;
 long cm;
+bool redFirst = true;
+int turnTime = 10;
+int waitTime = 10;
+int timer = 0;
+
+bool alreadyTurned = false;
 
 int detecteerAfstandInCentimeter = 20;
 
@@ -50,10 +56,10 @@ void setup() {
   pinMode(S3, OUTPUT);
   pinMode(sensorOut, INPUT);
 
-  pinMode(infra1, INPUT);
-  pinMode(infra2, INPUT);
-  pinMode(infra3, INPUT);
-  pinMode(infra4, INPUT);
+  pinMode(IRsensors[0], INPUT);
+  pinMode(IRsensors[1], INPUT);
+  pinMode(IRsensors[2], INPUT);
+  pinMode(IRsensors[3], INPUT);
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
@@ -73,9 +79,59 @@ void loop() {
   // ga naar beneden 100 mili seconden
   getSensorData();
   printSensorData();
+  determineNextMove();
 }
 
 /*************************************************************************/
+
+void determineNextMove() {
+  if (colourRed) {
+    if (redFirst) {
+      if (!colourBlack and !objectClose and !IRvalues[0] and !IRvalues[1] and !IRvalues[2] and !IRvalues[3]) {
+        weelsForward(turnTime);
+        redFirst = false;
+      }
+    }
+    if (!redFirst) {
+      weelsStop(turnTime);
+      while (1 == 1) {};
+    }
+  }
+  if (!colourRed and !colourBlack and !objectClose and !IRvalues[0] and !IRvalues[1] and !IRvalues[2] and !IRvalues[3]) {
+    if(alreadyTurned == false){
+      weelsTurnRightStraight(100);
+      alreadyTurned = true;
+    }
+    else{
+      weelsForward(turnTime);
+    }
+  }
+  if (!colourRed and !objectClose and (colourBlack or IRvalues[0])) {
+    alreadyTurned = false;
+    weelsTurnLeft(turnTime);
+  }
+  if (!colourRed and !colourBlack and !objectClose and !IRvalues[0] and IRvalues[1] and IRvalues[2] and IRvalues[3]) {
+    weelsForward(turnTime);
+  }
+  if (objectClose) {
+    if (timer <= waitTime) {
+      delay(1000);
+      timer++;
+    }
+    else {
+      weelsTurnLeftStraight(turnTime);
+      alreadyTurned = true;
+      timer = 0;
+    }
+  }
+  //reset timer.
+  if (!objectClose) {
+    timer = 0;
+  }
+  if (!colourRed and !colourBlack and !objectClose and !IRvalues[0] and !IRvalues[1] and IRvalues[2] and IRvalues[3]) {
+    weelsTurnRight(turnTime);
+  }
+}
 
 void getSensorData() {
   // Setting red filtered photodiodes to be read
@@ -102,24 +158,24 @@ void getSensorData() {
   // Printing the value on the serial monitor
   delay(100);
   if (red > 200 && blue > 20 && green > 20) {
-    colorBlack = true;
-    colorRed = false;
+    colourBlack = true;
+    colourRed = false;
   }
   else if (red < 50 && blue > 100 && green > 100) {
-    colorBlack = false;
-    colorRed = true;
+    colourBlack = false;
+    colourRed = true;
   }
   else {
-    colorBlack = false;
-    colorRed = false;
+    colourBlack = false;
+    colourRed = false;
   }
 
   for (int i = 0; i < 4; i++) {
     if (digitalRead(IRsensors[i]) != HIGH) {
-      IRvalues[i] = true;
+      IRvalues[i] = false;
     }
     else {
-      IRvalues[i] = false;
+      IRvalues[i] = true;
     }
   }
 
@@ -127,7 +183,7 @@ void getSensorData() {
 
   // The sensor is triggered by a HIGH pulse of 10 or more microseconds.
   // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-  digitalWrite(trigPin, LOW); 
+  digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
@@ -149,17 +205,17 @@ void getSensorData() {
   }
 }
 
-void printSensorData(){
+void printSensorData() {
   Serial.print("Red: ");
   Serial.println(red);
   Serial.print("Blue: ");
   Serial.println(blue);
   Serial.print("Green: ");
   Serial.println(green);
-  Serial.print("colorBlack: ");
-  Serial.println(colorBlack);
-  Serial.print("colorRed: ");
-  Serial.println(colorRed);
+  Serial.print("colourBlack: ");
+  Serial.println(colourBlack);
+  Serial.print("colourRed: ");
+  Serial.println(colourRed);
   Serial.print("Distance: ");
   Serial.println(cm);
   Serial.print("IR1: ");
@@ -170,16 +226,17 @@ void printSensorData(){
   Serial.println(IRvalues[2]);
   Serial.print("IR4: ");
   Serial.println(IRvalues[3]);
-  
+
 }
 
 // void's with a timer you can set
 
-void weelsDowns(float timelapse) {
+void weelsBackwards(float timelapse) {
   Serial.println("weels up signal");
   ServoLeft.write(160);
   ServoRight.write(-160);
   delay(timelapse);
+  weelsStop(0);
 }
 
 void weelsStop(float timelapse) {
@@ -189,11 +246,12 @@ void weelsStop(float timelapse) {
   delay(timelapse);
 }
 
-void weelsUp(float timelapse) {
+void weelsForward(float timelapse) {
   Serial.println("weels up signal");
   ServoLeft.write(-160);
   ServoRight.write(160);
   delay(timelapse);
+  weelsStop(0);
 }
 
 void weelsTurnLeft(float timelapse) {
@@ -201,4 +259,29 @@ void weelsTurnLeft(float timelapse) {
   ServoLeft.write(90);
   ServoRight.write(360);
   delay(timelapse);
+  weelsStop(0);
+}
+
+void weelsTurnRight(float timelapse) {
+  Serial.println("Weels Turn Right");
+  ServoLeft.write(360);
+  ServoRight.write(90);
+  delay(timelapse);
+  weelsStop(0);
+}
+
+void weelsTurnRightStraight(float timelapse) {
+  Serial.println("Weels Turn Right Straight");
+  ServoLeft.write(360);
+  ServoRight.write(90);
+  delay(timelapse);
+  weelsStop(0);
+}
+
+void weelsTurnLeftStraight(float timelapse) {
+  Serial.println("Weels Turn Left Straight");
+  ServoLeft.write(90);
+  ServoRight.write(360);
+  delay(timelapse);
+  weelsStop(0);
 }
