@@ -2,19 +2,19 @@
 // library voor servo's
 #include <Servo.h>
 
-#define S0 16
-#define S1 5
-#define S2 4
-#define S3 0
-#define sensorOut 2
+#define S0 8   // 8 16
+#define S1 9   // 9 5
+#define S2 10  // 10 4
+#define S3 11  // 11 0
+#define sensorOut 12 // 12 2 
 
-#define infra1 14
-#define infra2 12
-#define infra3 13
-#define infra4 15
+#define infra1 2 // 2 14
+#define infra2 3 // 3 12
+#define infra3 4 // 4 13
+#define infra4 5 // 5 15
 
-#define trigPin A0
-#define echoPin 10
+#define trigPin 22 // 22 A0
+#define echoPin 24 // 24 10
 
 int frequency = 0;
 
@@ -28,9 +28,13 @@ Servo ServoRight;
 
 bool colorBlack;
 bool colorRed;
-int IRsensors[4] = { 14, 12, 13, 15 };
+int IRsensors[4] = { 2, 3, 4, 5 };
 bool IRvalues[4];
 bool objectClose;
+int red;
+int blue;
+int green;
+long cm;
 
 int detecteerAfstandInCentimeter = 20;
 
@@ -46,6 +50,14 @@ void setup() {
   pinMode(S3, OUTPUT);
   pinMode(sensorOut, INPUT);
 
+  pinMode(infra1, INPUT);
+  pinMode(infra2, INPUT);
+  pinMode(infra3, INPUT);
+  pinMode(infra4, INPUT);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
   digitalWrite(S0, HIGH);
   digitalWrite(S1, LOW);
 
@@ -59,17 +71,18 @@ void setup() {
 
 void loop() {
   // ga naar beneden 100 mili seconden
-  weelsDowns(100);
+  getSensorData();
+  printSensorData();
 }
 
 /*************************************************************************/
 
-void getSensorInformation() {
+void getSensorData() {
   // Setting red filtered photodiodes to be read
   digitalWrite(S2, LOW);
   digitalWrite(S3, LOW);
   // Reading the output frequency
-  int red = pulseIn(sensorOut, LOW);
+  red = pulseIn(sensorOut, LOW);
   // Printing the value on the serial monitor
   delay(100);
 
@@ -77,7 +90,7 @@ void getSensorInformation() {
   digitalWrite(S2, HIGH);
   digitalWrite(S3, HIGH);
   // Reading the output frequency
-  int green = pulseIn(sensorOut, LOW);
+  green = pulseIn(sensorOut, LOW);
   // Printing the value on the serial monitor
   delay(100);
 
@@ -85,14 +98,14 @@ void getSensorInformation() {
   digitalWrite(S2, LOW);
   digitalWrite(S3, HIGH);
   // Reading the output frequency
-  int blue = pulseIn(sensorOut, LOW);
+  blue = pulseIn(sensorOut, LOW);
   // Printing the value on the serial monitor
   delay(100);
-  if (red < 20 && blue < 20 && green < 20) {
+  if (red > 200 && blue > 20 && green > 20) {
     colorBlack = true;
     colorRed = false;
   }
-  else if (red > 80 && blue < 20 && green < 20) {
+  else if (red < 50 && blue > 100 && green > 100) {
     colorBlack = false;
     colorRed = true;
   }
@@ -102,7 +115,7 @@ void getSensorInformation() {
   }
 
   for (int i = 0; i < 4; i++) {
-    if (digitalRead(IRsensors[i]) == HIGH) {
+    if (digitalRead(IRsensors[i]) != HIGH) {
       IRvalues[i] = true;
     }
     else {
@@ -111,11 +124,10 @@ void getSensorInformation() {
   }
 
   long duratie;
-  long cm;
 
   // The sensor is triggered by a HIGH pulse of 10 or more microseconds.
   // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-  digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, LOW); 
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
@@ -135,6 +147,30 @@ void getSensorInformation() {
   } else {
     objectClose = false; //return false if object is further away then distance in the parameter
   }
+}
+
+void printSensorData(){
+  Serial.print("Red: ");
+  Serial.println(red);
+  Serial.print("Blue: ");
+  Serial.println(blue);
+  Serial.print("Green: ");
+  Serial.println(green);
+  Serial.print("colorBlack: ");
+  Serial.println(colorBlack);
+  Serial.print("colorRed: ");
+  Serial.println(colorRed);
+  Serial.print("Distance: ");
+  Serial.println(cm);
+  Serial.print("IR1: ");
+  Serial.println(IRvalues[0]);
+  Serial.print("IR2: ");
+  Serial.println(IRvalues[1]);
+  Serial.print("IR3: ");
+  Serial.println(IRvalues[2]);
+  Serial.print("IR4: ");
+  Serial.println(IRvalues[3]);
+  
 }
 
 // void's with a timer you can set
