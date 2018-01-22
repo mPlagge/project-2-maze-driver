@@ -1,1 +1,3 @@
-'dit is een test
+gitm= git commit -m
+
+bashrc "als je dit invult krijg je het bestand waar je ze kan aanpassen"
