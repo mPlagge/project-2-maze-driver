@@ -7,14 +7,14 @@ Servo ServoLeft;
 Servo ServoRight;
 
 // Servo pin's
-#define servoPinLeft 12
-#define servoPinRight 14
+#define servoPinLeft D1
+#define servoPinRight D3
 
 /*************************************************************************/
 
 void setup() {
     // Serial stuff
-    Serial.begin(9600);
+    //Serial.begin(9600);
 
     // Bind servo objects to pins
     ServoRight.attach(servoPinRight);
@@ -26,7 +26,8 @@ void setup() {
 
 void loop() {
   // ga naar beneden 100 mili seconden
-  weelsDowns(100)
+  weelsDowns(1000);
+  weelsStop(1000);
 }
 
 /*************************************************************************/
