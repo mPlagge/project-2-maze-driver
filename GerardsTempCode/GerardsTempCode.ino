@@ -23,8 +23,8 @@ Servo ServoLeft;
 Servo ServoRight;
 
 // Servo pin's
-#define servoPinLeft 3   // 28 3
-#define servoPinRight 1  // 30 1
+#define servoPinLeft 28   // 28 3
+#define servoPinRight 30  // 30 1
 
 bool colourBlack;
 bool colourRed;
@@ -129,6 +129,7 @@ void determineNextMove() {
     }
     else {
       weelsTurnLeftStraight();
+      weelsForward(400);
       alreadyTurned = true;
       timer = 0;
     }
@@ -290,6 +291,6 @@ void weelsTurnLeftStraight() {
   Serial.println("Weels Turn Left Straight");
   ServoLeft.writeMicroseconds(1470);
   ServoRight.writeMicroseconds(1300);
-  delay(1200);
+  delay(2400);
   weelsStop();
 }
